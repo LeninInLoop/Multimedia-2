@@ -1,3 +1,4 @@
+import math
 import numpy as np, os
 from PIL import Image
 
@@ -12,6 +13,13 @@ class ImageHelper:
     def save_image(image_path: str, image: np.ndarray) -> None:
         return Image.fromarray(image).save(image_path)
 
+    @staticmethod
+    def calculate_psnr(original: np.ndarray, quantized: np.ndarray) -> float:
+        original = original.astype(np.float64)
+        quantized = quantized.astype(np.float64)
+        mse = np.mean((original - quantized) ** 2)
+        return 10 * math.log10((255.0 ** 2) / mse)
+
 class BColors:
     HEADER = '\033[95m'
     OK_BLUE = '\033[94m'
@@ -22,3 +30,10 @@ class BColors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+class JsonHelper:
+    @staticmethod
+    def save_to_json(file_path: str, data: dict) -> None:
+        import json
+        with open(file_path, 'w') as json_file:
+            json.dump(data, json_file, indent=4)

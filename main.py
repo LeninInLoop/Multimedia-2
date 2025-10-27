@@ -1,6 +1,7 @@
 import numpy as np, os
 from src import ImageHelper, BColors
 from src import Quantizer, Plotter
+from src import JsonHelper
 
 images = {
     "lenna": "images/lena_gray.bmp",
@@ -103,6 +104,45 @@ def main():
         print()
 
     print(BColors.OK_GREEN + BColors.BOLD + 20 * "-" + " Optimum Quantization Completed. " + 20 * "-" + BColors.ENDC)
+
+    # ----------------------- Calculate PSNR ------------------------
+    print(BColors.HEADER + BColors.BOLD + "\nCalculating PSNR... \n" + BColors.ENDC)
+
+    psnr_results = {"linear": {}, "optimal": {}}
+
+    for name, original_img in images_array.items():
+        psnr_results["linear"][name] = {}
+        psnr_results["optimal"][name] = {}
+
+        for bits_to_keep in [1, 2, 4]:
+
+            # --- Linear PSNR ---
+            linear_img_path = os.path.join(Result_dirs["linear"], f"{name}_quantized_linear_{bits_to_keep}bit.bmp")
+            linear_img = ImageHelper.load_image(linear_img_path)
+
+            linear_psnr = ImageHelper.calculate_psnr(original_img, linear_img)
+            psnr_results["linear"][name][f"{bits_to_keep}bit"] = linear_psnr
+
+            print(BColors.OK_BLUE + f"  {name} Linear {bits_to_keep}-bit PSNR: {linear_psnr:.2f} dB" + BColors.ENDC)
+
+
+            # --- Optimal PSNR ---
+            optimal_img_path = os.path.join(Result_dirs["optimal"], f"{name}_quantized_optimal_{bits_to_keep}bit.bmp")
+            optimal_img = ImageHelper.load_image(optimal_img_path)
+
+            optimal_psnr = ImageHelper.calculate_psnr(original_img, optimal_img)
+            psnr_results["optimal"][name][f"{bits_to_keep}bit"] = optimal_psnr
+
+            print(BColors.OK_BLUE + f"  {name} Optimal {bits_to_keep}-bit PSNR: {optimal_psnr:.2f} dB" + BColors.ENDC)
+
+        print()
+
+    print(BColors.HEADER + BColors.BOLD + "\nSaving PSNR results..." + BColors.ENDC)
+    json_path = os.path.join(Result_dirs["results"], "psnr_results.json")
+
+    JsonHelper.save_to_json(file_path=json_path, data=psnr_results)
+    print(BColors.OK_GREEN + BColors.BOLD + f"Successfully saved PSNR results to {json_path}" + BColors.ENDC)
+
 
 
 if __name__ == '__main__':
