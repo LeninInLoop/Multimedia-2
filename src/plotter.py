@@ -68,7 +68,8 @@ class Plotter:
             result_dir: str
     ):
         """
-        Performs PCA to reduce vectors and codebook to 2D and plots them.
+        Performs PCA to reduce vectors and codebook to 2D and plots them,
+        coloring vectors by their assigned cluster label to show partitions.
         """
         print(f"    Generating LBG cluster plot for {image_name}...")
         try:
@@ -83,12 +84,35 @@ class Plotter:
 
             plt.figure(figsize=(10, 8))
 
-            # Plot the projected input vectors (black dots)
-            # Use lower alpha and smaller size for potentially many points
-            plt.scatter(vectors_2d[:, 0], vectors_2d[:, 1], c='black', s=1, alpha=0.3, label='Input Vectors (Projected)')
+            # --- MODIFICATION START ---
+            # Plot the projected input vectors, colored by their label
+            # Use a colormap for distinct colors
+            num_clusters = len(codebook)
+            cmap = plt.cm.get_cmap('viridis', num_clusters) # Or 'tab20', 'jet' etc.
 
-            # Plot the projected code vectors (red dots)
-            plt.scatter(codebook_2d[:, 0], codebook_2d[:, 1], c='red', s=50, edgecolors='black', label='Code Vectors (Projected)')
+            scatter = plt.scatter(
+                vectors_2d[:, 0],
+                vectors_2d[:, 1],
+                c=labels,          # Color points based on cluster label
+                cmap=cmap,         # Use the chosen colormap
+                s=2,               # Smaller size for many points
+                alpha=0.5,         # Transparency
+                label='Input Vectors (Projected & Clustered)' # Modified Label
+            )
+            # --- MODIFICATION END ---
+
+
+            # Plot the projected code vectors (centroids) - make them stand out
+            plt.scatter(
+                codebook_2d[:, 0],
+                codebook_2d[:, 1],
+                c='red',           # Keep centroids red
+                s=80,              # Make centroids larger
+                edgecolors='black', # Add black edge
+                marker='X',        # Use a different marker (e.g., 'X')
+                label='Code Vectors (Projected Centroids)' # Modified Label
+             )
+
 
             plt.title(f'LBG Clusters (PCA Projection): {image_name} ({target_codebook_size} codewords, {block_shape[0]}x{block_shape[1]} blocks)')
             plt.xlabel('Principal Component 1')
@@ -96,8 +120,13 @@ class Plotter:
             plt.legend()
             plt.grid(True)
 
+            # Optional: Add a color bar if using many clusters
+            # if num_clusters > 10:
+            #     plt.colorbar(scatter, label='Cluster Index')
+
+
             # Save the plot
-            plot_filename = os.path.join(result_dir, f"{image_name}_lbg_{target_codebook_size}_clusters_pca.png")
+            plot_filename = os.path.join(result_dir, f"{image_name}_lbg_{target_codebook_size}_clusters_pca_colored.png") # Added _colored
             plt.savefig(plot_filename)
             plt.close()
             print(f"      LBG cluster plot saved to {plot_filename}")
