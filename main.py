@@ -12,9 +12,9 @@ images = {
 Result_dirs = {
     "results": "Results",
     "linear": "Results/Linear Quantization",
-    "linear_hist": "Results/Linear Quantization_Histograms",
+    "linear_hist": "Results/Linear Quantization Histograms",
     "optimal": "Results/Optimal Quantization",
-    "optimal_hist": "Results/Optimal Quantization_Histograms",
+    "optimal_hist": "Results/Optimal Quantization Histograms",
 }
 
 def main():
