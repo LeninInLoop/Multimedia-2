@@ -10,7 +10,7 @@ images = {
     "barbara": "images/barbara_gray.bmp",
 }
 
-Result_dirs = {
+result_dirs = {
     "results": "Results",
     "linear": "Results/Linear Quantization",
     "linear_hist": "Results/Linear Quantization Histograms",
@@ -26,7 +26,7 @@ def main():
         "goldhill": ImageHelper.load_image(images["goldhill"]),
         "barbara": ImageHelper.load_image(images["barbara"]),
     }
-    for dir_path in Result_dirs.values(): os.makedirs(dir_path, exist_ok=True)
+    for dir_path in result_dirs.values(): os.makedirs(dir_path, exist_ok=True)
 
     print(BColors.OK_CYAN + "Images Info:" + BColors.ENDC)
     for name, img in images_array.items():
@@ -46,7 +46,7 @@ def main():
             )
 
             ImageHelper.save_image(
-                image_path=os.path.join(Result_dirs["linear"], f"{name}_quantized_linear_{bits_to_keep}bit.bmp"),
+                image_path=os.path.join(result_dirs["linear"], f"{name}_quantized_linear_{bits_to_keep}bit.bmp"),
                 image=quantized_image
             )
 
@@ -58,7 +58,7 @@ def main():
                 boundaries=boundaries,
                 num_levels=num_levels,
                 quantizer_type="linear",
-                result_dir=Result_dirs["linear_hist"]
+                result_dir=result_dirs["linear_hist"]
             )
 
             print(BColors.OK_BLUE + f"{name} linear quantized to {bits_to_keep}-bit." + BColors.ENDC)
@@ -81,7 +81,7 @@ def main():
             )
 
             ImageHelper.save_image(
-                image_path=os.path.join(Result_dirs["optimal"], f"{name}_quantized_optimal_{bits_to_keep}bit.bmp"),
+                image_path=os.path.join(result_dirs["optimal"], f"{name}_quantized_optimal_{bits_to_keep}bit.bmp"),
                 image=quantized_image
             )
 
@@ -93,7 +93,7 @@ def main():
                 boundaries=boundaries,
                 num_levels=num_levels,
                 quantizer_type="optimal",
-                result_dir=Result_dirs["optimal_hist"]
+                result_dir=result_dirs["optimal_hist"]
             )
 
             print(BColors.OK_BLUE + f"{name} optimal quantized to {bits_to_keep}-bit." + BColors.ENDC)
@@ -117,7 +117,7 @@ def main():
         for bits_to_keep in [1, 2, 4]:
 
             # --- Linear PSNR ---
-            linear_img_path = os.path.join(Result_dirs["linear"], f"{name}_quantized_linear_{bits_to_keep}bit.bmp")
+            linear_img_path = os.path.join(result_dirs["linear"], f"{name}_quantized_linear_{bits_to_keep}bit.bmp")
             linear_img = ImageHelper.load_image(linear_img_path)
 
             linear_psnr = ImageHelper.calculate_psnr(original_img, linear_img)
@@ -127,7 +127,7 @@ def main():
 
 
             # --- Optimal PSNR ---
-            optimal_img_path = os.path.join(Result_dirs["optimal"], f"{name}_quantized_optimal_{bits_to_keep}bit.bmp")
+            optimal_img_path = os.path.join(result_dirs["optimal"], f"{name}_quantized_optimal_{bits_to_keep}bit.bmp")
             optimal_img = ImageHelper.load_image(optimal_img_path)
 
             optimal_psnr = ImageHelper.calculate_psnr(original_img, optimal_img)
@@ -138,7 +138,7 @@ def main():
         print()
 
     print(BColors.HEADER + BColors.BOLD + "\nSaving PSNR results..." + BColors.ENDC)
-    json_path = os.path.join(Result_dirs["results"], "psnr_results.json")
+    json_path = os.path.join(result_dirs["results"], "psnr_results.json")
 
     JsonHelper.save_to_json(file_path=json_path, data=psnr_results)
     print(BColors.OK_GREEN + BColors.BOLD + f"Successfully saved PSNR results to {json_path}" + BColors.ENDC)
