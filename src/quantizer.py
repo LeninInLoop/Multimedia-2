@@ -9,25 +9,19 @@ class Quantizer:
     @staticmethod
     def quantize_linear(image_8bit: np.ndarray, bits_to_keep: int) -> tuple:
         """
-        Quantizes an 8-bit (0-255) image to a lower bit depth
-        using uniform (linear) quantization.
+        Quantizes using Uniform Mid-Rise Quantization.
+        Step size is constant (256 / num_levels).
+        Reconstruction levels are at the center of the bins.
         """
-        if bits_to_keep < 1 or bits_to_keep > 8:
-            raise ValueError("Bits to keep must be between 1 and 8.")
-
-        shift = 8 - bits_to_keep
-        quantized_levels = image_8bit >> shift
-
         num_levels = 2 ** bits_to_keep
-        scale_factor = 255.0 / (num_levels - 1)
-        centroids = (np.arange(num_levels) * scale_factor)
+        step_size = 256.0 / num_levels
+        indices = np.floor(image_8bit / step_size)
 
-        rescaled_image = (quantized_levels * scale_factor).astype(np.uint8)
+        quantized_image = (indices + 0.5) * step_size
+        centroids = (np.arange(num_levels) + 0.5) * step_size
+        boundaries = np.arange(1, num_levels) * step_size
 
-        bin_size = 256.0 / num_levels
-        boundaries = (np.arange(1, num_levels) * bin_size) - 0.5
-
-        return rescaled_image, centroids, boundaries
+        return quantized_image.astype(np.uint8), centroids, boundaries
 
     @staticmethod
     def quantize_optimal(
